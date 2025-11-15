@@ -46,7 +46,7 @@ export const getSingleReportForEdit = asyncHandler(async (req, res) => {
   res.status(200).json(result.rows);
 });
 
-// MODIFIED ENDPOINT: Create or Update Report - FINAL FIX for "invalid input syntax for type date"
+// MODIFIED ENDPOINT: Create or Update Report - Reverting casting and relying on schema update
 export const createOrUpdateReport = asyncHandler(async (req, res) => {
   const teacherId = req.user.id;
   const { student_id, report_identifier, title, data_json, report_id } = req.body;
@@ -73,9 +73,9 @@ export const createOrUpdateReport = asyncHandler(async (req, res) => {
   if (report_id) {
     // Update existing report by ID
     const result = await query(
-      // FINAL FIX: Use $3::TEXT to explicitly hint the type to the driver/Postgres as text
+      // Final revert: Pass parameter directly, assuming the DB schema is correctly VARCHAR.
       `UPDATE weekly_reports 
-       SET title = $1, data_json = $2, week_start_date = $3::TEXT 
+       SET title = $1, data_json = $2, week_start_date = $3 
        WHERE id = $4 AND teacher_id = $5 
        RETURNING id, title, data_json, CAST(week_start_date AS VARCHAR) AS report_identifier`,
       [title, data_json, report_identifier, report_id, teacherId]
@@ -88,9 +88,9 @@ export const createOrUpdateReport = asyncHandler(async (req, res) => {
   } else {
     // Create new report
     const result = await query(
-      // FINAL FIX: Use $5::TEXT to explicitly hint the type to the driver/Postgres as text
+      // Final revert: Pass parameter directly, assuming the DB schema is correctly VARCHAR.
       `INSERT INTO weekly_reports (teacher_id, student_id, title, data_json, week_start_date) 
-       VALUES ($1, $2, $3, $4, $5::TEXT) 
+       VALUES ($1, $2, $3, $4, $5) 
        RETURNING id, title, data_json, CAST(week_start_date AS VARCHAR) AS report_identifier`,
       [teacherId, student_id, title, data_json, report_identifier]
     );
