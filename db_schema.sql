@@ -26,7 +26,7 @@ CREATE TABLE weekly_reports (
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     title VARCHAR(255),
     data_json JSONB NOT NULL,
-    week_start_date DATE NOT NULL,
+    week_start_date VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
